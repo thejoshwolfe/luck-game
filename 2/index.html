@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <title>Luck Game 2</title>
+    <style>
+      .G { background: yellow; }
+      .S { background: #88f; }
+      .D { background: #f88; }
+    </style>
+  </head>
+  <body>
+    <p>
+      <span class="G">G</span> = Gold: Increases your score.<br>
+      <span class="S">S</span> = Shield: Protects from Demons.<br>
+      <span class="D">D</span> = Demon: Reduces your health, unless you have a shield.
+    </p>
+    <p>Gold: <span id="score"></span><br>Health: <span id="health"></span></p>
+    <table>
+      <tr><td id="result-0"></td><td id="result-1"></td><td id="result-2"></td></tr>
+      <tr>
+        <td><button id="button-0">?</button></td>
+        <td><button id="button-1">?</button></td>
+        <td><button id="button-2">?</button></td>
+      </tr>
+    </table>
+    <script>
+      var score = 0;
+      var previousScore = score;
+      var health = 4;
+      var previousHealth = health;
+      updateStats()
+      function updateStats() {
+        document.getElementById("score").innerHTML = score === previousScore ? ""+score :
+          '<span class="G">'+score+'</span>';
+        document.getElementById("health").innerHTML = health === previousHealth ? ""+health :
+          '<span class="D">'+health+'</span>';
+        previousScore = score;
+        previousHealth = health;
+      }
+      var results = [null, null, null];
+      var resultSpans = [0, 1, 2].map(function(i) {
+        return document.getElementById("result-" + i)
+      });
+      [0, 1, 2].forEach(function(i) {
+        document.getElementById("button-" + i).addEventListener("click", function() {
+          if (results[i] != null) return;
+          if (health <= 0) return;
+          results[i] = pickRandom();
+          updateResultSpans();
+          updateStats();
+        });
+      });
+      updateResultSpans();
+      function updateResultSpans() {
+        [0, 1, 2].forEach(function(i) {
+          var x = results[i];
+          document.getElementById("result-" + i).innerHTML = x == null ? "&nbsp;" :
+            '<span class="'+x+'">'+x+'</span>';
+        });
+        if (results.indexOf(null) === -1) {
+          processHappening();
+          results = [null, null, null];
+        }
+      }
+      function pickRandom() {
+        return "GSD"[Math.floor(Math.random() * 3)];
+      }
+      function processHappening() {
+        var hasShield = results.indexOf("S") !== -1;
+        var hasDemon = results.indexOf("D") !== -1;
+        var goldCount = (results.join(",").match(/G/g)||[]).length;
+        score += goldCount;
+        if (hasDemon && !hasShield) health -= 1;
+      }
+    </script>
+  </body>
+</html>
